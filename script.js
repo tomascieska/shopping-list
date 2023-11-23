@@ -3,6 +3,8 @@ const itemInput = document.getElementById('item-input')
 const itemList = document.getElementById('item-list')
 const clearBtn = document.getElementById('clear')
 const itemFilter = document.getElementById('filter')
+const formBtn = itemForm.querySelector('button')
+let isEditMode = false
 
 function displayItems() {
     const itemsFromStorage = getItemsFromStorage()
@@ -81,21 +83,55 @@ function getItemsFromStorage(){
     return itemsFromStorage
 }
 
-function removeItem(e) {
-    if(e.target.parentElement.classList.contains
+function onClickItem(e){
+    if (e.target.parentElement.classList.contains
         ('remove-item')){
-            if (confirm('Are you sure?')){
-                e.target.parentElement.parentElement.remove()
-
-                checkUI()
-            }
+            removeItem(e.target.parentElement.parentElement)
+    } else {
+        setItemToEdit(e.target)
     }
+}
+
+function setItemToEdit(item){
+    isEditMode = true
+    itemList.querySelectorAll('li').forEach((i) => i.classList.remove('edit-mode'))
+    item.classList.add('edit-mode')
+    formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update item'
+    formBtn.style.backgroundColor = '#22b822'
+    itemInput.value = item.textContent
+}
+
+function removeItem(item) {
+    if(confirm('Are you sure?')){
+
+        // Remove item from DOM
+        item.remove()
+
+        // Remove item from storage
+        removeItemFromStorage(item.textContent)
+
+        checkUI()
+    }
+}
+
+function removeItemFromStorage(item){
+    let itemsFromStorage = getItemsFromStorage()
+
+    // Filter out item to be removed
+    itemsFromStorage = itemsFromStorage.filter((i) => i !== item)
+
+    //Re-set to localstorage
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage))
 }
 
 function clearItems(){
     while(itemList.firstChild){
         itemList.removeChild(itemList.firstChild)
     }
+
+    // clear items from local storage
+
+    localStorage.removeItem('items')
 
     checkUI()
 }
@@ -131,7 +167,7 @@ function checkUI (){
 function init(){
     //Event listeners
 itemForm.addEventListener('submit', onAddItemSubmit)
-itemList.addEventListener('click', removeItem)
+itemList.addEventListener('click', onClickItem)
 clearBtn.addEventListener('click', clearItems)
 itemFilter.addEventListener('input', filterItems)
 document.addEventListener('DOMContentLoaded', displayItems)
