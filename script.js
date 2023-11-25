@@ -30,9 +30,14 @@ const newItem = itemInput.value
         itemToEdit.classList.remove('edit-mode')
         itemToEdit.remove()
         isEditMode = false
+    } else {
+        if(checkIfItemExist(newItem)){
+            alert('That item already exist')
+            return
+        }
     }
 
-    // Create DOM element
+    // Create item DOM element
     additemToDOM(newItem)
 
     // Add item to local storage
@@ -102,6 +107,13 @@ function onClickItem(e){
     }
 }
 
+
+function checkIfItemExist(item){
+    const itemsFromStorage = getItemsFromStorage()
+
+    return itemsFromStorage.includes(item)
+}
+
 function setItemToEdit(item){
     isEditMode = true
     itemList.querySelectorAll('li').forEach((i) => i.classList.remove('edit-mode'))
@@ -162,6 +174,7 @@ function filterItems (e){
 }
 
 function checkUI (){
+    itemInput.value = ''
     const items = itemList.querySelectorAll('li')
     console.log(items)
     if (items.length === 0){
